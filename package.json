@@ -1,0 +1,23 @@
+{
+  "name": "usercontrol",
+  "version": "1.0.0",
+  "description": "简易用户管理系统",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ltwork/usercontrol.git"
+  },
+  "keywords": ["前端","简易","用户管理"],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ltwork/usercontrol/issues"
+  },
+  "homepage": "https://github.com/ltwork/usercontrol#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
