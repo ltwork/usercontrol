@@ -7,6 +7,9 @@
     <!-- cdn 网络加载资源 -->
     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <!-- md5加密 -->
+    <script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
+
     <title>登录页面</title>
 </head>
 <body>
@@ -55,7 +58,29 @@
 </body>
 <script>
     function register(){
+        //点击注册 跳到注册页
         window.location.href = "/account/register"
+    }
+    $('#vcodeimgId').click(function(){
+        //浏览器默认认为url没变不会提交请求,所以加一个随机数的
+        $(this).attr('src',`/account/vcode?randomId=${Math.random()}`)
+    })
+    //点击登录 手机用户输入的值
+    function login (){
+        var username = $('#usernameId').val()
+        var password = md5($('#passwordId').val())
+        var vcode = $('#vcodeId').val()
+        $.post('/account/login',{username,password,vcode},function(result){
+            if(result.status != 0) {
+                //刷新验证码
+                $('#vcodeimgId').attr('src',`/account/vcode?randomId=${Math.random()}`)
+                alert(result.message)
+            }else {
+                window.location.href = "/studentmanager/list"
+            }
+            
+            
+        })
     }
 </script>
 </html>
