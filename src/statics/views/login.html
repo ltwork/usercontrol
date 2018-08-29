@@ -74,12 +74,11 @@
             if(result.status != 0) {
                 //刷新验证码
                 $('#vcodeimgId').attr('src',`/account/vcode?randomId=${Math.random()}`)
+                $('#vcodeId').val('')
                 alert(result.message)
             }else {
                 window.location.href = "/studentmanager/list"
             }
-            
-            
         })
     }
 </script>

@@ -6,10 +6,7 @@ const studentmanagerRouter = express.Router()
 const studentmanagerCTRL = require(path.join(__dirname,'../controllers/studentmanagerController.js'))
 
 
-studentmanagerRouter.get('/list',studentmanagerCTRL.getIndex)
-
-
-
+studentmanagerRouter.get('/list',studentmanagerCTRL.getStudentListPage)
 
 
 

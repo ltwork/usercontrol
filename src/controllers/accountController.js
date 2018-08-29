@@ -1,15 +1,9 @@
 const path = require('path')
-const bodypaser = require('body-parser')
-
 //导入验证码包
 const captchapng = require('captchapng');
-//导入数据库
-const MongoClient = require('mongodb').MongoClient;
-// Connection URL
-const url = 'mongodb://localhost:27017';
+//导入工具文件
+const databasetool = require(path.join(__dirname,"../tools/databasetool.js"))
 
-// Database Name 数据库的名字
-const dbName = 'szhmqd21';
 
 //最终处理,返回登录页给浏览器 返回页面HTML结构
 exports.getLoginPage = (req, res) => {
@@ -31,35 +25,54 @@ exports.register = (req, res) => {
     //链接数据库查询 如果数据库里面有这个用户名就提示用户名已存在'
     //如果没有就 把数据插入到数据库 提示 注册成功
     // Use connect method to connect to the server
-    MongoClient.connect(url, {
-        useNewUrlParser: true
-    }, function (err, client) {
-        //拿到数据库的操作对象 
-        const db = client.db(dbName);
-        //拿到集合 表名
-        const collection = db.collection('accountInfo');
-        //查询 判断存不存在
-        collection.findOne({
-            username: req.body.username
-        }, (err, doc) => {
-            if (doc) { //用户名存在
-                //一查到就要关闭数据库
-                client.close()
-                result.status = 1,
-                    result.message = "用户名已存在"
-                res.json(result);
-            } else { //用户名不存在
-                // client.close()
-                collection.insertOne(req.body, (err, result2) => {
-                    if (result2 == null) {
-                        result.status = 1,
-                            result.message = "注册失败"
-                    }
-                    client.close()
-                    res.json(result);
-                })
-            }
-        })
+    // MongoClient.connect(url, {
+    //     useNewUrlParser: true
+    // }, function (err, client) {
+    //     //拿到数据库的操作对象 
+    //     const db = client.db(dbName);
+    //     //拿到集合 表名
+    //     const collection = db.collection('accountInfo');
+    //     //查询 判断存不存在
+    //     collection.findOne({
+    //         username: req.body.username
+    //     }, (err, doc) => {
+    //         if (doc) { //用户名存在
+    //             //一查到就要关闭数据库
+    //             client.close()
+    //             result.status = 1,
+    //                 result.message = "用户名已存在"
+    //             res.json(result);
+    //         } else { //用户名不存在
+    //             // client.close()
+    //             collection.insertOne(req.body, (err, result2) => {
+    //                 if (result2 == null) {
+    //                     result.status = 1,
+    //                         result.message = "注册失败"
+    //                 }
+    //                 client.close()
+    //                 res.json(result);
+    //             })
+    //         }
+    //     })
+    // })\
+
+    //参数: 数据集合(表名),参数,回调函数
+    databasetool.findOne("accountInfo",{username:req.body.username},(err,doc)=>{
+        if (doc) { //用户名存在
+            result.status = 1,
+            result.message = "用户名已存在", 
+            res.json(result)   
+        }else {//用户名不存在
+            databasetool.insertOne("accountInfo",{username:req.body.username,password:req.body.password},(err,result2)=>{
+                if(result == null) {//失败
+                    result.status = 2,
+                    result.message = "注册失败"
+                    res.jsaon(result)
+                }else {
+                    res.json(result)
+                }
+            })
+        }
     })
 }
 
@@ -99,24 +112,36 @@ exports.login = (req, res) => {
         res.json(result)
         return
     }
-    //链接数据库查询 用户名和密码
-    MongoClient.connect(url, {useNewUrlParser: true}, function (err, client) {
-        //拿到数据库的操作对象 
-            const db = client.db(dbName);
-            //拿到集合 表名
-            const collection = db.collection('accountInfo');
-            //查询 判断存不存在
-            collection.findOne({username: req.body.username,password: req.body.password}, (err, doc) => {
-                //一查到就要关闭数据库
-                client.close()
-                if (doc == null) { //用户名存在
-                    result.status = 2,
-                    result.message = "用户名或密码错误"
-                    
-                } //用户名密码数据库中有
-                res.json(result);
-            }
-        )
 
-    }        
-)}
+    //参数: 数据集合(表名),参数,回调函数
+    databasetool.findOne("accountInfo",{username:req.body.username,password:req.body.password},(err,doc)=>{
+        if (doc == null) { //用户名存在
+            result.status = 2,
+            result.message = "用户名或密码错误"
+            
+        } //用户名密码数据库中有
+        res.json(result);
+    })
+    //链接数据库查询 用户名和密码
+    // MongoClient.connect(url, {useNewUrlParser: true}, function (err, client) {
+    //     //拿到数据库的操作对象 
+    //         const db = client.db(dbName);
+    //         //拿到集合 表名
+    //         const collection = db.collection('accountInfo');
+    //         //查询 判断存不存在
+    //         collection.findOne({username: req.body.username,password: req.body.password}, (err, doc) => {
+    //             //关闭数据库
+    //             client.close()
+    //             if (doc == null) { //用户名存在
+    //                 result.status = 2,
+    //                 result.message = "用户名或密码错误"
+                    
+    //             } //用户名密码数据库中有
+    //             res.json(result);
+                
+    //         }
+    //     )
+
+    // })
+            
+}
