@@ -119,7 +119,10 @@ exports.login = (req, res) => {
             result.status = 2,
             result.message = "用户名或密码错误"
             
-        } //用户名密码数据库中有
+        } //用户名密码数据库中有 记录登录的session用于权限控制
+        else {
+            req.session.loginedName = req.body.username
+        }
         res.json(result);
     })
     //链接数据库查询 用户名和密码
@@ -144,4 +147,12 @@ exports.login = (req, res) => {
 
     // })
             
+}
+
+// 处理登出
+exports.logout = (req,res) => {
+    // 清空session中的loginedname
+    req.session.loginedName = null;
+     // 告诉浏览器跳回到登录页面
+    res.send('<script>location.href="/account/login"</script>')
 }

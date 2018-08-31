@@ -47,7 +47,7 @@
     function register() {
         const username = $("#usernameId").val()
         //密码md5加密
-        const password = md5($("#passwordId").val())
+        const password = md5($("#passwordId").val()+"@_@")
         // console.log(username,password);
         $.post("/account/register",{username,password},function (result) {
             if(result.status != 0 ){

@@ -65,10 +65,11 @@
         //浏览器默认认为url没变不会提交请求,所以加一个随机数的
         $(this).attr('src',`/account/vcode?randomId=${Math.random()}`)
     })
-    //点击登录 手机用户输入的值
+    //点击登录 收集用户输入的值
     function login (){
         var username = $('#usernameId').val()
-        var password = md5($('#passwordId').val())
+        //加盐
+        const password = md5($("#passwordId").val()+"@_@")
         var vcode = $('#vcodeId').val()
         $.post('/account/login',{username,password,vcode},function(result){
             if(result.status != 0) {

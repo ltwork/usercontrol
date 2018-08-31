@@ -1,36 +1,47 @@
+//1、导入express
 const express = require('express')
 const path = require('path')
-
-//session中间件 导入
+const bodyParser = require('body-parser')
 const session = require('express-session')
 
-//获取post请求参数中间件
-const bodyParser = require('body-parser')
+//2、创建应用
+const app = express()
 
-
-//创建app
-const app = express();
+app.use(express.static(path.join(__dirname)))
 
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
-// Use the session middleware 5minute
-// app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 3000000 }}))
-app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: true }))
-// resave:false,saveUninitialized: true,
-//设置内置中间件，对我们的静态资源进行处理
-app.use(express.static(path.join(__dirname,"statics")))
+app.use(bodyParser.urlencoded({ extended: true }))
+// parse application/json
+app.use(bodyParser.json())
 
-//集成路由
+// Use the session middleware
+app.use(session({ secret: 'keyboard cat',resave: true,saveUninitialized:false, cookie: { maxAge: 600000 }}))
+
+//all 是代表支持GET/POST方法，这个all方法要写在集成路由之前
+app.all('/*',(req,res,next)=>{
+    if(req.url.includes('account')){
+        next()
+    }else{
+        // 判断是否登录，如果登录，放行，如果没有登录直接响应数据回去
+        if(req.session.loginedName){
+            next()
+        }else{ // 没有登录，则响应浏览器一段可以执行的脚本
+            res.send(`<script>alert("您还没有登录，请先登录!");location.href="/account/login"</script>`)
+        }
+    }
+})
+
+//3、集成路由
 const accountRouter = require(path.join(__dirname,"./routers/accountRouter.js"))
-//当页面是account时使用这个路由
+const studentManagerRouter = require(path.join(__dirname,"./routers/studentmanagerRouter.js"))
 app.use('/account',accountRouter)
+app.use('/studentmanager',studentManagerRouter)
 
-const studentmanagerRouter = require(path.join(__dirname,"./routers/studentmanagerRouter.js"))
-app.use('/studentmanager',studentmanagerRouter)
+//4、开启Web服务
+app.listen(3000,err=>{
+    if(err){
+        console.log(err)
+    }
 
-
-//启用app
-app.listen(3000,'127.0.0.1',err=>{
-    if(err) console.log(err);
-    console.log("OK");
+    console.log("start OK")
 })
